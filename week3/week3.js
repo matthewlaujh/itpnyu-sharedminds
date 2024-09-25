@@ -13,7 +13,6 @@ canvas.style.top = "0"
 canvas.style.width = "100%"
 canvas.style.height = "100%"
 document.body.appendChild(canvas)
-console.log("canvas", canvas.width, canvas.height)
 
 const inputBox = document.createElement("input")
 inputBox.setAttribute("type", "text")
@@ -30,6 +29,41 @@ document.body.appendChild(inputBox)
 
 // Store text objects
 const textObjects = []
+
+// Class to represent a Thought
+class Thought {
+  constructor(prompt, response) {
+    this.prompt = prompt
+    this.response = response
+    this.replies = []
+  }
+
+  display() {
+    const text = document.createElement("div")
+    text.textContent = this.response
+    text.style.position = "absolute"
+    text.style.left = inputBox.style.left
+    text.style.top = inputBox.style.top
+    text.style.fontSize = "30px"
+    text.style.fontFamily = "Arial"
+    text.style.opacity = "1" // Set opacity to 1
+    text.style.transition = "opacity 1s" // Add transition for opacity
+    document.body.appendChild(text)
+
+    // Add the new text object to the array
+    textObjects.push(text)
+
+    // Create color selection buttons
+    createColorButtons(text, this)
+  }
+
+  addReply(replyPrompt, replyResponse, textElement) {
+    this.prompt = replyPrompt
+    this.response = replyResponse
+    this.replies.push({ prompt: replyPrompt, response: replyResponse })
+    textElement.textContent = replyResponse
+  }
+}
 
 // Function to move the input box to a random position
 function moveInputToRandomPosition() {
@@ -68,41 +102,24 @@ function moveInputToRandomPosition() {
   inputBox.style.top = randomY + "px"
 }
 
-// Create the prompt text element
-const txtPrompt = document.createElement("div")
-txtPrompt.style.display = "none" // Hide it as it's only used for generating the prompt text
-document.body.appendChild(txtPrompt)
-
-// Create the resulting text element
-const textDiv = document.createElement("div")
-textDiv.id = "resulting_text"
-document.body.appendChild(textDiv)
-
 // Add event listener to the input box
 inputBox.addEventListener("keydown", async function (event) {
   if (event.key === "Enter") {
     const inputValue = inputBox.value
+    console.log("Input value:", inputValue)
 
     // Call askForWords with the input value
     const promptText = `These are my thoughts ${inputValue}. Ask me a follow up question to dig deeper into my thoughts. Only ask one question, only ask the question, everything else is unnecessary.`
     const generatedText = await askForWords(promptText)
+    console.log("Generated text:", generatedText)
 
-    // Replace the input value with the generated text
+    // Create a new Thought object and display it
     if (generatedText) {
-      const text = document.createElement("div")
-      text.textContent = generatedText
-      text.style.position = "absolute"
-      text.style.left = inputBox.style.left
-      text.style.top = inputBox.style.top
-      text.style.fontSize = "30px"
-      text.style.fontFamily = "Arial"
-      document.body.appendChild(text)
-
-      // Add the new text object to the array
-      textObjects.push(text)
-
-      // Create color selection buttons
-      createColorButtons(text)
+      const thought = new Thought(promptText, generatedText)
+      console.log("Thought object JSON:", JSON.stringify(thought, null, 2)) // Log the Thought object as JSON
+      thought.display()
+    } else {
+      console.error("Generated text is null")
     }
 
     inputBox.value = ""
@@ -135,6 +152,7 @@ async function askForWords(p_prompt) {
       throw new Error(`HTTP error! status: ${words_response.status}`)
     }
     const proxy_said = await words_response.json()
+    console.log("API response JSON:", JSON.stringify(proxy_said, null, 2)) // Log the JSON response
 
     if (!proxy_said.output || proxy_said.output.length === 0) {
       return null
@@ -148,7 +166,7 @@ async function askForWords(p_prompt) {
 }
 
 // Function to create color selection buttons
-function createColorButtons(textElement) {
+function createColorButtons(textElement, thought) {
   const colorOptions = [
     "red",
     "green",
@@ -181,8 +199,11 @@ function createColorButtons(textElement) {
       // Hide the color buttons
       buttonContainer.style.display = "none"
 
-      // Create and display the opacity slider
-      createOpacitySlider(textElement, color, buttonContainer)
+      // Start fading out the text after a delay
+      startFadingText(textElement, color)
+
+      // Create reply input box
+      createReplyInputBox(textElement, thought)
     })
 
     buttonContainer.appendChild(colorButton)
@@ -191,98 +212,102 @@ function createColorButtons(textElement) {
   document.body.appendChild(buttonContainer)
 }
 
-// Function to create the opacity slider
-function createOpacitySlider(textElement, color, container) {
-  const sliderContainer = document.createElement("div")
-  sliderContainer.style.position = "absolute"
-  sliderContainer.style.left = container.style.left // Same left position
-  sliderContainer.style.top = container.style.top // Same top position
-
-  const opacitySlider = document.createElement("input")
-  opacitySlider.type = "range"
-  opacitySlider.min = "0"
-  opacitySlider.max = "1"
-  opacitySlider.step = "0.01"
-  opacitySlider.value = "1" // Initial opacity is 1 (fully opaque)
-
-  // Style the slider track and thumb to match the text color
-  opacitySlider.style.background = "lightgray" // Use a light gray for the track
-  opacitySlider.style.WebkitAppearance = "none" // Required for custom styles in some browsers
-  opacitySlider.style.height = "8px" // Adjust height as needed
-  opacitySlider.style.borderRadius = "4px" // Adjust border radius as needed
-
-  // Style the slider thumb
-  opacitySlider.style.cursor = "pointer"
-  opacitySlider.style.width = "50px" // Increased width
-  opacitySlider.style.height = "10px" // Increased height
-  opacitySlider.style.background = color
-
-  // Add transition to textElement for smooth opacity change
-  textElement.style.transition = "opacity 1s"
-
+// Function to start fading out the text
+function startFadingText(textElement, color) {
   // Counter for red text fade times
   let redFadeCounter = 0
 
-  // Update event listener to change opacity directly
-  opacitySlider.addEventListener("input", () => {
-    const opacity = opacitySlider.value
-    textElement.style.opacity = opacity
+  // Calculate the delay based on the color
+  let delay
+  if (color === "red") {
+    delay = 1000 // 1 second
+  } else if (color === "green") {
+    delay = 2000 // 2 seconds
+  } else if (color === "blue") {
+    delay = 3000 // 3 seconds
+  } else if (color === "orange") {
+    delay = 4000 // 4 seconds
+  } else if (color === "purple") {
+    delay = 5000 // 5 seconds
+  } else if (color === "yellow") {
+    delay = 6000 // 6 seconds
+  } else if (color === "pink") {
+    delay = 7000 // 7 seconds
+  } else if (color === "cyan") {
+    delay = 8000 // 8 seconds
+  } else if (color === "magenta") {
+    delay = 9000 // 9 seconds
+  } else {
+    delay = 10000 // 10 seconds
+  }
 
-    // Hide the slider after adjusting the opacity
-    opacitySlider.style.display = "none"
+  // Start fading out the text after the calculated delay
+  setTimeout(() => {
+    textElement.style.opacity = "0"
 
-    // Calculate the delay based on the opacity value
-    let delay
-    if (color === "red") {
-      delay = opacity * 1000 // 1% = 1 second
-    } else if (color === "green") {
-      delay = opacity * 2000 // 1% = 2 second
-    } else if (color === "blue") {
-      delay = opacity * 3000 // 1% = 3 second
-    } else if (color === "orange") {
-      delay = opacity * 4000 // 1% = 4 second
-    } else if (color === "purple") {
-      delay = opacity * 5000 // 1% = 5 second
-    } else if (color === "yellow") {
-      delay = opacity * 6000 // 1% = 6 second
-    } else if (color === "pink") {
-      delay = opacity * 7000 // 1% = 7 second
-    } else if (color === "cyan") {
-      delay = opacity * 8000 // 1% = 8 second
-    } else if (color === "magenta") {
-      delay = opacity * 9000 // 1% = 9 second
-    } else {
-      delay = opacity * 10000 // 10 times slower
-    }
-
-    // Start fading out the text after the calculated delay
+    // Wait for the same amount of time while the text is at zero opacity
     setTimeout(() => {
-      textElement.style.opacity = "0"
-
-      // Wait for the same amount of time while the text is at zero opacity
-      setTimeout(() => {
-        if (color !== "black") {
-          if (color === "red") {
-            redFadeCounter++
-            if (redFadeCounter >= 3) {
-              // Remove the text element after fading 3 times
-              textElement.remove()
-              return
-            }
+      if (color !== "black") {
+        if (color === "red") {
+          redFadeCounter++
+          if (redFadeCounter >= 3) {
+            // Remove the text element after fading 3 times
+            textElement.remove()
+            return
           }
-
-          // Reset the text to 100% opacity
-          textElement.style.opacity = "1"
-
-          // Reset the slider value to 1 and display it again
-          opacitySlider.value = "1"
-          opacitySlider.style.display = "block"
         }
-      }, delay)
+
+        // Reset the text to 100% opacity
+        textElement.style.opacity = "1"
+
+        // Start fading out the text again
+        startFadingText(textElement, color)
+      }
     }, delay)
+  }, delay)
+}
+
+// Function to create reply input box
+function createReplyInputBox(textElement, thought) {
+  const replyInputBox = document.createElement("input")
+  replyInputBox.setAttribute("type", "text")
+  replyInputBox.setAttribute("placeholder", "Reply here")
+  replyInputBox.style.position = "absolute"
+  replyInputBox.style.left = textElement.style.left
+
+  // Calculate the top position to be right below the text
+  const textRect = textElement.getBoundingClientRect()
+  replyInputBox.style.top = textRect.bottom + "px"
+  replyInputBox.style.fontSize = "20px"
+  replyInputBox.style.fontFamily = "Arial"
+
+  // Add event listener to the reply input box
+  replyInputBox.addEventListener("keydown", async function (event) {
+    if (event.key === "Enter") {
+      const replyValue = replyInputBox.value
+      console.log("Reply value:", replyValue)
+
+      // Call askForWords with the reply value
+      const replyPrompt = `These are my thoughts ${replyValue}. Ask me a follow up question to dig deeper into my thoughts. Only ask one question, only ask the question, everything else is unnecessary.`
+      const replyGeneratedText = await askForWords(replyPrompt)
+      console.log("Reply generated text:", replyGeneratedText)
+
+      // Add the reply to the Thought object and update the displayed text
+      if (replyGeneratedText) {
+        thought.addReply(replyPrompt, replyGeneratedText, textElement)
+        console.log(
+          "Updated Thought object JSON:",
+          JSON.stringify(thought, null, 2)
+        ) // Log the updated Thought object as JSON
+      } else {
+        console.error("Reply generated text is null")
+      }
+
+      replyInputBox.value = ""
+    }
   })
-  sliderContainer.appendChild(opacitySlider)
-  document.body.appendChild(sliderContainer)
+
+  document.body.appendChild(replyInputBox)
 }
 
 // Helper function to get RGB components from color name
