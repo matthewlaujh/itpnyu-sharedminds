@@ -13,22 +13,11 @@ import {
   onChildChanged,
   onChildRemoved,
 } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js"
+import { firebaseConfig } from "./firebaseConfig.js";
 
 let myName = null
 let myKey = null
 let db
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBADrPwczOJivVXboRy99x3TANkT_rhods",
-  authDomain: "itpnyu-b6b1d.firebaseapp.com",
-  projectId: "itpnyu-b6b1d",
-  storageBucket: "itpnyu-b6b1d.appspot.com",
-  messagingSenderId: "407753427861",
-  appId: "1:407753427861:web:645e06ecb1385278b1449c",
-  measurementId: "G-WTSVM6ZS2M",
-}
 
 let appName = "itpnyu-sharedminds-week4"
 let allText = {}
