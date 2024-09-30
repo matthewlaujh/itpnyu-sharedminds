@@ -13,7 +13,7 @@ import {
   onChildChanged,
   onChildRemoved,
 } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js"
-import { firebaseConfig } from "./firebaseConfig.js";
+import { firebaseConfig } from "./firebaseConfig.js"
 
 let myName = null
 let myKey = null
@@ -60,16 +60,20 @@ function initFirebase() {
   })
 }
 
+// function setInFirebase(folder, data) {
+//   //firebase will supply the key, this will trigger "onChildAdded" below
+//   if (myKey) {
+//     const dbRef = ref(db, appName + "/" + folder + "/" + myKey)
+//     update(dbRef, data)
+//   } else {
+//     //if it doesn't exist, it adds (pushes) and collect the key for later updates
+//     const dbRef = ref(db, appName + "/" + folder + "/")
+//     myKey = push(dbRef, data).key
+//   }
+// }
 function setInFirebase(folder, data) {
-  //firebase will supply the key, this will trigger "onChildAdded" below
-  if (myKey) {
-    const dbRef = ref(db, appName + "/" + folder + "/" + myKey)
-    update(dbRef, data)
-  } else {
-    //if it doesn't exist, it adds (pushes) and collect the key for later updates
-    const dbRef = ref(db, appName + "/" + folder + "/")
-    myKey = push(dbRef, data).key
-  }
+  const dbRef = ref(db, appName + "/" + folder + "/")
+  push(dbRef, data) // Always create a new entry
 }
 
 function saveTextObjectToFirebase(textElement, thought) {
