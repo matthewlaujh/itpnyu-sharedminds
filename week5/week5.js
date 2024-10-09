@@ -15,7 +15,7 @@ import {
   onChildChanged,
   onChildRemoved,
 } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js"
-import { firebaseConfig } from "./dump/firebaseConfig.js"
+import { firebaseConfig } from "./firebaseConfig.js"
 
 let myDBID
 let authUser
@@ -37,6 +37,8 @@ function initFirebase() {
   initFirebaseDB()
   initFirebaseAuthUI()
 }
+
+authContainer.id = "firebaseui-auth-container"
 
 function createUI() {
   const canvas = document.createElement("canvas")
@@ -95,14 +97,13 @@ function createUI() {
       }
       inputBox.value = "" // Clear the input box
       inputBox.style.display = "none" // Hide the input box
-      authContainer.style.display = "none" // Hide the auth container
+      authContainer.style.display = "none" // Hide the Firebase sign-in container
     }
   })
 }
 
 function initFirebaseAuthUI() {
   // const authContainer = document.getElementById("firebaseui-auth-container")
-  authContainer.id = "firebaseui-auth-container"
   initFirebaseAuth()
 }
 
@@ -289,6 +290,7 @@ function createReplyInputBox(textElement, thought) {
   })
 
   document.body.appendChild(replyInputBox)
+  document.body.appendChild(authContainer)
 }
 
 uiConfig = {
@@ -341,6 +343,7 @@ export function initFirebaseAuth() {
     } else {
       console.log("we have a user", firebaseAuthUser)
       authUser = firebaseAuthUser
+
       document.getElementById("signOut").style.display = "block"
       localUserEmail = authUser.multiFactor.user.email
       myDBID = authUser.multiFactor.user.uid
