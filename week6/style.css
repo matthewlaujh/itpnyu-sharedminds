@@ -1,0 +1,55 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+canvas {
+  display: block;
+}
+body {
+  background-color: #ffffff;
+  height: 100%;
+  margin: 0px;
+}
+#input-box {
+  z-index: 10;
+}
+#firebaseui-auth-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 9;
+  align-items: center;
+  justify-content: center;
+}
+#profile {
+  align-items: right;
+  justify-content: right;
+}
+#signOut {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background-color: #ea4c89;
+  border-radius: 8px;
+  border-style: none;
+  box-sizing: border-box;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  height: 40px;
+}
+.button-1:hover,
+.button-1:focus {
+  background-color: #f082ac;
+}
+.nameDiv {
+  font-size: 32px;
+  color: #01112a;
+  background-color: #fff;
+  line-height: 1.2em;
+  opacity: 0.7;
+}

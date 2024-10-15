@@ -1,0 +1,148 @@
+
+// const replicateProxy = "https://replicate-api-proxy.glitch.me"
+
+// let distances = []
+// let initialPrompt
+// let phraseArrays = []
+
+//   function draw() {
+//     ctx.clearRect(0, 0, canvas.width, canvas.height)
+//     ctx.font = "18px Arial"
+
+//     let yPosition = 40
+//     const lineHeight = 30
+
+//     // Iterate over the distances array
+//     distances.forEach(({ phrase, words }) => {
+//       let xPosition = 20
+
+//       // Iterate over the words in the phrase
+//       words.forEach(({ word, distance }) => {
+//         ctx.fillStyle = `rgba(0, 0, 0, ${distance / 2})`
+//         ctx.fillText(word, xPosition, yPosition)
+//         xPosition += ctx.measureText(word).width + 10 // Add some space between words
+//       })
+
+//       yPosition += lineHeight // Move to the next line for the next phrase
+
+//       // If yPosition exceeds canvas height, wrap back to the top
+//       if (yPosition > canvas.height) {
+//         yPosition = 40
+//       }
+//     })
+//   }
+
+//   // Call draw to display the initial prompt
+//   draw()
+
+//   async function askForEmbeddings(p_prompt) {
+//     let processPrompt = p_prompt.replace(/[.?!]/g, ",")
+//     let promptInLines = processPrompt.replace(/,/g, "\n")
+//     let data = {
+//       version:
+//         "75b33f253f7714a281ad3e9b28f63e3232d583716ef6718f2e46641077ea040a",
+//       input: {
+//         inputs: p_prompt,
+//       },
+//     }
+//     let options = {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(data),
+//     }
+//     const url = replicateProxy + "/create_n_get/"
+//     console.log("url", url, "options", options)
+//     const raw = await fetch(url, options)
+//     const proxy_said = await raw.json()
+//     let output = proxy_said.output
+//     console.log("Proxy Returned", output)
+//     distances = []
+//     let firstOne = {
+//       input: themeInputField.value,
+//       embedding: await getWordEmbedding(themeInputField.value),
+//     }
+
+//     for (let i = 0; i < output.length; i++) {
+//       let thisOne = output[i]
+//       let cdist = cosineSimilarity(firstOne.embedding, thisOne.embedding)
+
+//       // Split the phrase into words
+//       let words = thisOne.input
+//         .split(/\s+/)
+//         .map((word) => word.trim())
+//         .filter((word) => word.length > 0)
+
+//       // Calculate cosine similarity for each word
+//       let wordDistances = await Promise.all(
+//         words.map(async (word) => {
+//           let wordEmbedding = await getWordEmbedding(word) // Fetch the embedding for each word
+//           let wordCdist = cosineSimilarity(firstOne.embedding, wordEmbedding)
+//           return {
+//             word: word,
+//             distance: wordCdist,
+//           }
+//         })
+//       )
+
+//       distances.push({
+//         reference: firstOne.input,
+//         phrase: thisOne.input,
+//         distance: cdist,
+//         words: wordDistances,
+//       })
+
+//       console.log(firstOne.input, thisOne.input, cdist, wordDistances)
+//     }
+//     draw()
+//   }
+
+//   // Function to get word embedding by calling the API
+//   async function getWordEmbedding(word) {
+//     let data = {
+//       version:
+//         "75b33f253f7714a281ad3e9b28f63e3232d583716ef6718f2e46641077ea040a",
+//       input: {
+//         inputs: word,
+//       },
+//     }
+//     let options = {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(data),
+//     }
+//     const url = replicateProxy + "/create_n_get/"
+//     const raw = await fetch(url, options)
+//     const proxy_said = await raw.json()
+//     return proxy_said.output[0].embedding
+//   }
+
+//   function cosineSimilarity(vecA, vecB) {
+//     return dotProduct(vecA, vecB) / (magnitude(vecA) * magnitude(vecB))
+//   }
+
+//   function dotProduct(vecA, vecB) {
+//     let product = 0
+//     for (let i = 0; i < vecA.length; i++) {
+//       product += vecA[i] * vecB[i]
+//     }
+//     return product
+//   }
+
+//   function magnitude(vec) {
+//     let sum = 0
+//     for (let i = 0; i < vec.length; i++) {
+//       sum += vec[i] * vec[i]
+//     }
+//     return Math.sqrt(sum)
+//   }
+// })
+
+// function normalizeScores(scores) {
+//   const min = Math.min(...scores)
+//   const max = Math.max(...scores)
+//   return scores.map((score) => (score - min) / (max - min))
+// }
