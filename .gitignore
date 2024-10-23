@@ -2,7 +2,7 @@
 classExamples/ 
 .vscode/
 # week4/firebaseConfig.js
-
+.venv/
 week7/images
 week7/sd
 week7/venv
