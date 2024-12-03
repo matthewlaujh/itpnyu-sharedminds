@@ -106,7 +106,7 @@ const colors = [
   "#FFF5A0", // Lighter Pastel Orange
   "#FFFAC0", // Lighter Pastel Orange
   "#FFFDE0", // Lightest Pastel Orange
-  "#696969", // Grey
+  "#f0f0f0", // Grey
 ]
 const lifespans = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
 const fadeDurations = [6, 11, 16, 21, 26, 31, 36, 41, 46, 51]
