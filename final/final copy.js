@@ -53,17 +53,8 @@ styleSheet.textContent = `
 
 .fading-text {
   animation-fill-mode: forwards;
-}
-
-.organizing-text {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 10px;
 }`
 document.head.appendChild(styleSheet)
-
 // Create a container for the buttons
 const buttonContainer = document.createElement("div")
 buttonContainer.style.position = "fixed"
@@ -73,7 +64,6 @@ buttonContainer.style.top = `${
 }px` // Position below the input box with 1% gap
 buttonContainer.style.zIndex = "100"
 buttonContainer.style.display = "flex"
-buttonContainer.style.width = "96%" // Set width to match the thought container
 document.body.appendChild(buttonContainer)
 
 // Array to store text objects
@@ -106,26 +96,11 @@ const colors = [
   "#FFF5A0", // Lighter Pastel Orange
   "#FFFAC0", // Lighter Pastel Orange
   "#FFFDE0", // Lightest Pastel Orange
-  "#696969", // Grey
+  "#f0f0f0", // Grey
 ]
 const lifespans = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
 const fadeDurations = [6, 11, 16, 21, 26, 31, 36, 41, 46, 51]
 const buttons = colors.map(createButton)
-
-// Create the prioritize button
-const prioritizeButton = document.createElement("button")
-prioritizeButton.textContent = "Prioritize"
-prioritizeButton.style.height = `${inputBox.offsetHeight}px`
-prioritizeButton.style.margin = "5px"
-prioritizeButton.style.border = "2px solid #696969"
-prioritizeButton.style.cursor = "pointer"
-prioritizeButton.style.backgroundColor = "#FFFFFF"
-prioritizeButton.style.color = "#FFA07A"
-prioritizeButton.style.marginLeft = "auto" // Align to the far right
-buttonContainer.appendChild(prioritizeButton)
-
-// Boolean flag to track the current state
-let isPrioritized = false
 
 // Class to represent a Thought
 class Thought {
@@ -153,7 +128,6 @@ class Thought {
     container.style.padding = "10px"
     container.style.boxSizing = "border-box"
     container.style.color = "#696969"
-    container.style.zIndex = "99"
     container.style.backgroundColor = colors[this.colorIndex] // Set initial background color
 
     // Create a div element to display the timestamp and initial input
@@ -219,7 +193,7 @@ class Thought {
     removeButton.style.height = replyBox.offsetHeight + "px" // Set height to match reply input box
     removeButton.addEventListener("click", () => {
       this.container.remove()
-      const index = textObjects.indexOf(this)
+      const index = textObjects.indexOf(this.container)
       if (index > -1) {
         textObjects.splice(index, 1)
       }
@@ -228,10 +202,10 @@ class Thought {
     container.appendChild(removeButton)
 
     // Add the new text object to the array
-    textObjects.unshift(this)
+    textObjects.push(container)
 
-    // Prepend the container to the document body
-    document.body.prepend(container)
+    // Append the container to the document body
+    document.body.appendChild(container)
 
     // Store a reference to the container element
     this.container = container
@@ -279,7 +253,7 @@ class Thought {
         } else {
           // Remove the thought if it reaches the last color
           this.container.remove()
-          const index = textObjects.indexOf(this)
+          const index = textObjects.indexOf(this.container)
           if (index > -1) {
             textObjects.splice(index, 1)
           }
@@ -321,9 +295,9 @@ function updateThoughtPositions() {
     inputBox.offsetHeight +
     buttonContainer.offsetHeight +
     window.innerHeight * 0.045 // Start 2% below the input box and button container
-  textObjects.forEach((thought) => {
-    thought.container.style.top = `${topPosition}px`
-    topPosition += thought.container.offsetHeight + window.innerHeight * 0.02 // 2% space between each thought
+  textObjects.forEach((container) => {
+    container.style.top = `${topPosition}px`
+    topPosition += container.offsetHeight + window.innerHeight * 0.02 // 2% space between each thought
   })
 }
 
@@ -354,33 +328,6 @@ buttons.forEach((button, index) => {
       inputBox.value = ""
     })
   })
-})
-
-// Add event listener to the prioritize button
-prioritizeButton.addEventListener("click", () => {
-  if (isPrioritized) {
-    // Sort the textObjects array based on timestamp (chronological order)
-    textObjects.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
-    prioritizeButton.textContent = "Prioritize"
-    prioritizeButton.style.color = "#FFA07A"
-  } else {
-    // Sort the textObjects array based on colorIndex
-    textObjects.sort((a, b) => a.colorIndex - b.colorIndex)
-    prioritizeButton.textContent = "Chronological"
-    prioritizeButton.style.color = "#FFA07A"
-  }
-
-  // Clear the current thoughts from the document body
-  textObjects.forEach((thought) => thought.container.remove())
-
-  // Prepend the sorted thoughts to the document body
-  textObjects.forEach((thought) => document.body.prepend(thought.container))
-
-  // Update the positions of all thought boxes
-  updateThoughtPositions()
-
-  // Toggle the prioritize state
-  isPrioritized = !isPrioritized
 })
 
 // Function to call the Replicate API and get a response
