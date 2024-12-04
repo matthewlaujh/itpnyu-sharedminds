@@ -11,6 +11,7 @@ canvas.style.left = "0"
 canvas.style.top = "0"
 canvas.style.width = "100%"
 canvas.style.height = "100%"
+canvas.style.position = "fixed"
 canvas.style.backgroundColor = "#f0f0f0"
 document.body.appendChild(canvas)
 
