@@ -15,6 +15,14 @@ canvas.style.position = "fixed"
 canvas.style.backgroundColor = "#f0f0f0"
 document.body.appendChild(canvas)
 
+const container = document.createElement("div")
+container.style.position = "fixed"
+container.style.width = "100%"
+container.style.padding = "70px"
+container.style.backgroundColor = "#f0f0f0"
+container.style.zIndex = "100"
+document.body.appendChild(container)
+
 // Create an input box element and set its attributes and styles
 const inputBox = document.createElement("input")
 inputBox.setAttribute("type", "text")
@@ -120,7 +128,7 @@ prioritizeButton.style.height = `${inputBox.offsetHeight}px`
 prioritizeButton.style.margin = "5px"
 prioritizeButton.style.border = "2px solid #696969"
 prioritizeButton.style.cursor = "pointer"
-prioritizeButton.style.backgroundColor = "#FFFFFF"
+prioritizeButton.style.backgroundColor = "#f0f0f0"
 prioritizeButton.style.color = "#FFA07A"
 prioritizeButton.style.marginLeft = "auto" // Align to the far right
 buttonContainer.appendChild(prioritizeButton)
